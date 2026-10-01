@@ -1,0 +1,10 @@
+jacare_analytics:
+  target: local
+  outputs:
+    local:
+      type: duckdb
+      path: "{{ env_var('JACARE_DUCKDB_PATH', 'data/jacare_analytics.duckdb') }}"
+      schema: analytics
+      threads: 1
+      # Parquet já está disponível na distribuição Python de DuckDB usada aqui.
+      # Não executar INSTALL (rede/gravação no HOME) no worker isolado.

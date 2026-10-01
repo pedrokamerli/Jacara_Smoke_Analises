@@ -1,0 +1,11 @@
+FROM jacare-analytics-demo:release
+USER root
+RUN pip install --no-cache-dir 'httpx>=0.27,<1'
+USER 10001:10001
+ENV PYTHONPATH=/app/src:/app
+COPY app/ /app/app/
+COPY src/ /app/src/
+COPY warehouse/ /app/warehouse/
+COPY sql/ /app/sql/
+COPY config/ /app/config/
+COPY scripts/package_private_data.py /app/scripts/package_private_data.py

@@ -1,0 +1,63 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: "Pedidos com allowlist de campos; IDs diretos e contato não persistidos. customer_key, se preenchido, é HMAC local."
+    columns:
+      - name: order_key
+        description: "Chave substituta local usada apenas para ligar pedidos a itens."
+      - name: amount_received_brl
+        description: "Valor recebido informado pela fonte, sem inferir lucro ou margem."
+      - name: customer_key
+        description: "Chave pseudonimizada local; continua protegida e não deve ser publicada."
+
+  - name: stg_items
+    description: "Itens vendidos em granularidade item, associados a order_key local; não contém dados de cliente."
+
+  - name: stg_appdelivery_daily
+    description: "Agregados diários AppDelivery por tipo e status; IDs de pedido não são persistidos."
+
+  - name: stg_food99_daily
+    description: "Agregados diários do recorte 99Food; sem identificadores nem avaliações textuais."
+
+  - name: stg_instagram_daily
+    description: "Séries diárias agregadas exportadas pelo Instagram; não inclui informações demográficas ou por publicação."
+
+  - name: fct_daily_sales
+    description: "Vendas pagas agregadas por data de abertura. Datas sem qualquer pedido na fonte mantêm alvos nulos e has_source_records=false."
+
+  - name: fct_weekly_sales
+    description: "Métricas agregadas por semana iniciada na segunda-feira (DuckDB date_trunc week)."
+
+  - name: fct_channel_sales
+    description: "Pedidos pagos agregados por origem registrada."
+
+  - name: fct_product_performance
+    description: "Quantidade, pedidos e faturamento de itens por produto/categoria, sem custos do produto."
+
+  - name: fct_customer_recurrence
+    description: "Indicadores agregados de recorrência; não expõe chaves de cliente no resultado final."
+
+  - name: fct_appdelivery_reconciliation
+    description: "Reconciliação diária de contagem e valor de itens entre AppDelivery entregue e canal MenuDino no PDV. Evidência de sobreposição não é confirmação de identidade por pedido."
+
+  - name: fct_food99_summary
+    description: "Resumo agregado do recorte exploratório do 99Food; não equivale a lucro nem representa todos os canais. Médias são condicionadas a pelo menos cinco observações."
+
+  - name: fct_instagram_daily
+    description: "Série de valor informado pelo export do Instagram, sem re-agregação; a natureza acumulada ou diária precisa ser confirmada por métrica."
+
+  - name: stg_meta_ads_daily
+    description: "Gasto, impressões e subtotal de cliques conhecidos das linhas diárias de anúncios. link_clicks_observed_rows e link_clicks_missing_rows medem cobertura; ausência não vira zero. Totais hierárquicos e relatórios sobrepostos são excluídos."
+  - name: fct_marketing_daily
+    description: "Meta Ads ligado por data às vendas observadas, sem atribuição causal. CPC e CTR são razões dos totais apenas com cobertura completa de cliques; alcance não é somado."
+  - name: fct_customer_activity_monthly
+    description: "Primeira observação e retorno por mês no histórico disponível. Sem chaves individuais na saída; não representa primeira compra na vida do cliente."
+  - name: fct_sales_by_hour
+    description: "Pedidos e valor recebido por data e hora de abertura na fonte."
+  - name: stg_ifood_daily
+    description: "Recorte da aba iFood_App minimizado por data e status, independente do canal iFood no PDV. Não somar fontes sem reconciliação."
+  - name: stg_ifood_products
+    description: "Indicadores por item reportados na aba iFood_App. Período da tabela de produtos não informado; não aplicar filtro de vendas do PDV a essa tabela."
+  - name: fct_ifood_reconciliation
+    description: "Comparação por data entre o recorte iFood_App concluído e pedidos pagos iFood no PDV. Não há ID individual na aba para provar identidade."

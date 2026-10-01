@@ -1,0 +1,27 @@
+# Preparação: somente demo sintética; homologar HTTPS/proxy antes de implantar.
+services:
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jacare-analytics:local
+    restart: unless-stopped
+    environment:
+      JACARE_PUBLIC_MODE: "true"
+      JACARE_PUBLIC_DATA_DIR: /app/demo/public
+      STREAMLIT_BROWSER_GATHER_USAGE_STATS: "false"
+    ports:
+      # Exposição somente no loopback da VPS; proxy reverso deve terminar HTTPS.
+      - "127.0.0.1:8501:8501"
+    # Somente demo embutida na imagem; nenhum volume de dados reais.
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 1g
+    cpus: 1.0
+    init: true

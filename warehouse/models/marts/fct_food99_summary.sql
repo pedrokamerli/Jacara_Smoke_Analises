@@ -1,0 +1,20 @@
+select
+    sum(orders) as orders,
+    count(distinct order_date) as covered_days,
+    min(order_date) as first_order_date,
+    max(order_date) as last_order_date,
+    sum(sales_revenue_brl)::decimal(14,2) as sales_revenue_brl,
+    sum(shop_revenue_brl)::decimal(14,2) as shop_revenue_brl,
+    sum(commission_expense_brl)::decimal(14,2) as commission_expense_brl,
+    sum(payment_channel_fee_brl)::decimal(14,2) as payment_channel_fee_brl,
+    sum(late_preparation_orders) as late_preparation_orders,
+    sum(orders_with_completion_timestamp) as orders_with_completion_timestamp,
+    sum(orders_with_cancellation_timestamp) as orders_with_cancellation_timestamp,
+    sum(orders_with_both_timestamps) as orders_with_both_timestamps,
+    case when sum(rating_count) >= 5 then sum(rating_sum) end::decimal(14,2) as rating_sum,
+    sum(rating_count) as rating_count,
+    case when sum(rating_count) >= 5 then sum(rating_sum) / sum(rating_count) end as average_rating,
+    case when sum(prep_minutes_count) >= 5 then sum(prep_minutes_sum) / sum(prep_minutes_count) end as average_prep_minutes,
+    case when sum(acceptance_seconds_count) >= 5 then sum(acceptance_seconds_sum) / sum(acceptance_seconds_count) end as average_acceptance_seconds,
+    case when sum(finalization_seconds_count) >= 5 then sum(finalization_seconds_sum) / sum(finalization_seconds_count) end as average_finalization_seconds
+from {{ ref('stg_food99_daily') }}

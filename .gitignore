@@ -1,0 +1,61 @@
+# Ambiente local
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.idea/
+.env*
+!.env.example
+
+# Dados de origem e dados pessoais: manter apenas localmente
+data/
+*.xlsx
+*.xls
+*.csv
+*.parquet
+*.joblib
+*.key
+*.pbix
+demo/*
+!demo/public/
+*.zip
+data/raw/
+data/private/
+data/interim/
+data/processed/
+data/runs/
+data/current_run.json
+data/public_exports/
+public-data/
+JACARE_SMOKE_HOUSE_PEDIDOS_E_RELATORIOS_ORGANIZADOS_2026/
+jacare anaise perfil/
+data/demo/
+data/demo_analytics.duckdb
+*.duckdb
+*.db
+
+# Saídas locais
+output/pdf/private/
+tmp/pdfs/private/
+tmp/
+warehouse/target/
+warehouse/logs/
+warehouse/dbt_packages/
+warehouse/.user.yml
+warehouse/profiles.yml
+*.log
+.streamlit/secrets.toml
+
+# Documentos locais e credenciais: nunca publicar
+output/
+secrete não enviar os dados pro git nem vps/
+*.pdf
+*.pem
+*.pfx
+*.p12
+client_secret*.json
+credentials*.json
+id_ed25519*
+id_rsa*

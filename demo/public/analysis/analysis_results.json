@@ -1,0 +1,771 @@
+[
+  {
+    "id": 1,
+    "question": "Faturamento recebido e pedidos",
+    "sql": "01_totals.sql",
+    "limitation": "Total Recebido não é lucro; apenas pedidos pagos. Publicação com recorte fixo: grupos pequenos são omitidos e não há filtros livres de datas.",
+    "results": [
+      [
+        {
+          "first_date": "2025-01-02 00:00:00",
+          "last_date": "2025-08-26 00:00:00",
+          "paid_orders": 5335.0,
+          "received_brl": 316315.0,
+          "observed_days": 203,
+          "missing_days": 34
+        }
+      ]
+    ]
+  },
+  {
+    "id": 2,
+    "question": "Evolução mensal",
+    "sql": "02_monthly_evolution.sql",
+    "limitation": "Meses nas bordas do histórico são parciais; não comparar como meses completos. Publicação com recorte fixo: grupos pequenos são omitidos e não há filtros livres de datas.",
+    "results": [
+      [
+        {
+          "month_start": "2025-01-01 00:00:00",
+          "paid_orders": 583.0,
+          "received_brl": 34594.0,
+          "average_ticket_brl": 59.337907375643226,
+          "observed_days": 26
+        },
+        {
+          "month_start": "2025-02-01 00:00:00",
+          "paid_orders": 553.0,
+          "received_brl": 32737.0,
+          "average_ticket_brl": 59.19891500904159,
+          "observed_days": 24
+        },
+        {
+          "month_start": "2025-03-01 00:00:00",
+          "paid_orders": 642.0,
+          "received_brl": 38476.0,
+          "average_ticket_brl": 59.93146417445483,
+          "observed_days": 26
+        },
+        {
+          "month_start": "2025-04-01 00:00:00",
+          "paid_orders": 652.0,
+          "received_brl": 38341.0,
+          "average_ticket_brl": 58.80521472392638,
+          "observed_days": 26
+        },
+        {
+          "month_start": "2025-05-01 00:00:00",
+          "paid_orders": 724.0,
+          "received_brl": 42572.0,
+          "average_ticket_brl": 58.80110497237569,
+          "observed_days": 27
+        },
+        {
+          "month_start": "2025-06-01 00:00:00",
+          "paid_orders": 717.0,
+          "received_brl": 41799.0,
+          "average_ticket_brl": 58.29707112970711,
+          "observed_days": 25
+        },
+        {
+          "month_start": "2025-07-01 00:00:00",
+          "paid_orders": 770.0,
+          "received_brl": 46254.0,
+          "average_ticket_brl": 60.07012987012987,
+          "observed_days": 27
+        },
+        {
+          "month_start": "2025-08-01 00:00:00",
+          "paid_orders": 694.0,
+          "received_brl": 41542.0,
+          "average_ticket_brl": 59.85878962536023,
+          "observed_days": 22
+        }
+      ]
+    ]
+  },
+  {
+    "id": 3,
+    "question": "Melhores e menores dias",
+    "sql": "03_best_worst_days.sql",
+    "limitation": "Dias com pelo menos cinco pedidos; datas sem registro não entram como vendas zero. Publicação com recorte fixo: grupos pequenos são omitidos e não há filtros livres de datas.",
+    "results": [
+      [
+        {
+          "sale_date": "2025-01-08 00:00:00",
+          "paid_orders": 13,
+          "amount_received_brl": 872.0,
+          "highest_value_rank": 195,
+          "lowest_value_rank": 9,
+          "highest_volume_rank": 203,
+          "lowest_volume_rank": 1
+        },
+        {
+          "sale_date": "2025-04-08 00:00:00",
+          "paid_orders": 16,
+          "amount_received_brl": 716.0,
+          "highest_value_rank": 203,
+          "lowest_value_rank": 1,
+          "highest_volume_rank": 194,
+          "lowest_volume_rank": 8
+        },
+        {
+          "sale_date": "2025-08-08 00:00:00",
+          "paid_orders": 39,
+          "amount_received_brl": 2772.0,
+          "highest_value_rank": 1,
+          "lowest_value_rank": 203,
+          "highest_volume_rank": 2,
+          "lowest_volume_rank": 201
+        },
+        {
+          "sale_date": "2025-08-15 00:00:00",
+          "paid_orders": 40,
+          "amount_received_brl": 2347.0,
+          "highest_value_rank": 5,
+          "lowest_value_rank": 199,
+          "highest_volume_rank": 1,
+          "lowest_volume_rank": 203
+        }
+      ]
+    ]
+  },
+  {
+    "id": 4,
+    "question": "Melhores e menores semanas",
+    "sql": "04_best_worst_weeks.sql",
+    "limitation": "Semanas de segunda a domingo contidas na fonte. Dias sem registro limitam a interpretação. Publicação com recorte fixo: grupos pequenos são omitidos e não há filtros livres de datas.",
+    "results": [
+      [
+        {
+          "week_start": "2025-01-20 00:00:00",
+          "paid_orders": 129.0,
+          "amount_received_brl": 7669.0,
+          "observed_days": 6,
+          "missing_days": 1,
+          "highest_value_rank": 33,
+          "lowest_value_rank": 1,
+          "highest_volume_rank": 33,
+          "lowest_volume_rank": 1
+        },
+        {
+          "week_start": "2025-08-04 00:00:00",
+          "paid_orders": 198.0,
+          "amount_received_brl": 12069.0,
+          "observed_days": 6,
+          "missing_days": 1,
+          "highest_value_rank": 1,
+          "lowest_value_rank": 33,
+          "highest_volume_rank": 1,
+          "lowest_volume_rank": 33
+        }
+      ]
+    ]
+  },
+  {
+    "id": 5,
+    "question": "Dias da semana e horários",
+    "sql": "05_weekdays_hours.sql",
+    "limitation": "Horário de abertura do pedido; distribuição observada, sem inferir funcionamento. Publicação com recorte fixo: grupos pequenos são omitidos e não há filtros livres de datas.",
+    "results": [
+      [
+        {
+          "dimension": "hour",
+          "value": 18,
+          "paid_orders": 588.0,
+          "received_brl": 35339.0
+        },
+        {
+          "dimension": "hour",
+          "value": 19,
+          "paid_orders": 1208.0,
+          "received_brl": 71518.0
+        },
+        {
+          "dimension": "hour",
+          "value": 20,
+          "paid_orders": 1249.0,
+          "received_brl": 74268.0
+        },
+        {
+          "dimension": "hour",
+          "value": 21,
+          "paid_orders": 1275.0,
+          "received_brl": 74782.0
+        },
+        {
+          "dimension": "hour",
+          "value": 22,
+          "paid_orders": 1015.0,
+          "received_brl": 60408.0
+        },
+        {
+          "dimension": "weekday",
+          "value": 2,
+          "paid_orders": 774.0,
+          "received_brl": 45668.0
+        },
+        {
+          "dimension": "weekday",
+          "value": 3,
+          "paid_orders": 721.0,
+          "received_brl": 42460.0
+        },
+        {
+          "dimension": "weekday",
+          "value": 4,
+          "paid_orders": 742.0,
+          "received_brl": 45306.0
+        },
+        {
+          "dimension": "weekday",
+          "value": 5,
+          "paid_orders": 1072.0,
+          "received_brl": 65086.0
+        },
+        {
+          "dimension": "weekday",
+          "value": 6,
+          "paid_orders": 1002.0,
+          "received_brl": 58953.0
+        },
+        {
+          "dimension": "weekday",
+          "value": 7,
+          "paid_orders": 1024.0,
+          "received_brl": 58842.0
+        }
+      ]
+    ]
+  },
+  {
+    "id": 6,
+    "question": "Ticket por canal",
+    "sql": "06_ticket_channels.sql",
+    "limitation": "Origem registrada no PDV; Desktop não é uma plataforma de delivery. Publicação com recorte fixo: grupos pequenos são omitidos e não há filtros livres de datas.",
+    "results": [
+      [
+        {
+          "source_channel": "menudino_app_site",
+          "paid_orders": 1353,
+          "received_brl": 85292.0,
+          "average_ticket_brl": 63.03917220990392
+        },
+        {
+          "source_channel": "ifood",
+          "paid_orders": 1278,
+          "received_brl": 78802.0,
+          "average_ticket_brl": 61.660406885758995
+        },
+        {
+          "source_channel": "comanda_mobile",
+          "paid_orders": 1365,
+          "received_brl": 77285.0,
+          "average_ticket_brl": 56.61904761904762
+        },
+        {
+          "source_channel": "desktop",
+          "paid_orders": 1339,
+          "received_brl": 74936.0,
+          "average_ticket_brl": 55.96415235250187
+        }
+      ]
+    ]
+  },
+  {
+    "id": 7,
+    "question": "Produtos por unidades",
+    "sql": "07_top_product_units.sql",
+    "limitation": "Itens de combo são componentes; a fonte consolidada não identifica o combo pai. Publicação com recorte fixo: grupos pequenos são omitidos e não há filtros livres de datas.",
+    "results": [
+      [
+        {
+          "product_name": "Burger Demo A",
+          "product_category": "Categoria Demo",
+          "item_type": "produto",
+          "units_sold": 4147.0,
+          "orders_containing_item": 2748,
+          "item_sales_brl": 99528.0
+        },
+        {
+          "product_name": "Bebida Demo",
+          "product_category": "Categoria Demo",
+          "item_type": "produto",
+          "units_sold": 4008.0,
+          "orders_containing_item": 2659,
+          "item_sales_brl": 28056.0
+        },
+        {
+          "product_name": "Burger Demo B",
+          "product_category": "Categoria Demo",
+          "item_type": "produto",
+          "units_sold": 3998.0,
+          "orders_containing_item": 2670,
+          "item_sales_brl": 127936.0
+        },
+        {
+          "product_name": "Batata Demo",
+          "product_category": "Categoria Demo",
+          "item_type": "produto",
+          "units_sold": 3970.0,
+          "orders_containing_item": 2675,
+          "item_sales_brl": 47640.0
+        }
+      ],
+      [
+        {
+          "product_name": "Burger Demo A",
+          "product_category": "Categoria Demo",
+          "item_type": "produto",
+          "units_sold": 4147.0,
+          "orders_containing_item": 2748,
+          "item_sales_brl": 99528.0
+        },
+        {
+          "product_name": "Batata Demo",
+          "product_category": "Categoria Demo",
+          "item_type": "produto",
+          "units_sold": 3970.0,
+          "orders_containing_item": 2675,
+          "item_sales_brl": 47640.0
+        },
+        {
+          "product_name": "Burger Demo B",
+          "product_category": "Categoria Demo",
+          "item_type": "produto",
+          "units_sold": 3998.0,
+          "orders_containing_item": 2670,
+          "item_sales_brl": 127936.0
+        },
+        {
+          "product_name": "Bebida Demo",
+          "product_category": "Categoria Demo",
+          "item_type": "produto",
+          "units_sold": 4008.0,
+          "orders_containing_item": 2659,
+          "item_sales_brl": 28056.0
+        }
+      ]
+    ]
+  },
+  {
+    "id": 8,
+    "question": "Produtos por valor",
+    "sql": "08_top_product_value.sql",
+    "limitation": "Valor dos itens registrado; não mede margem e não precisa coincidir com Total Recebido. Publicação com recorte fixo: grupos pequenos são omitidos e não há filtros livres de datas.",
+    "results": [
+      [
+        {
+          "product_name": "Burger Demo B",
+          "product_category": "Categoria Demo",
+          "item_type": "produto",
+          "units_sold": 3998.0,
+          "orders_containing_item": 2670,
+          "item_sales_brl": 127936.0
+        },
+        {
+          "product_name": "Burger Demo A",
+          "product_category": "Categoria Demo",
+          "item_type": "produto",
+          "units_sold": 4147.0,
+          "orders_containing_item": 2748,
+          "item_sales_brl": 99528.0
+        },
+        {
+          "product_name": "Batata Demo",
+          "product_category": "Categoria Demo",
+          "item_type": "produto",
+          "units_sold": 3970.0,
+          "orders_containing_item": 2675,
+          "item_sales_brl": 47640.0
+        },
+        {
+          "product_name": "Bebida Demo",
+          "product_category": "Categoria Demo",
+          "item_type": "produto",
+          "units_sold": 4008.0,
+          "orders_containing_item": 2659,
+          "item_sales_brl": 28056.0
+        }
+      ]
+    ]
+  },
+  {
+    "id": 9,
+    "question": "Produtos com menor volume",
+    "sql": "09_low_product_volume.sql",
+    "limitation": "Grupos de pelo menos cinco pedidos. Volume baixo não determina retirada do cardápio. Publicação com recorte fixo: grupos pequenos são omitidos e não há filtros livres de datas.",
+    "results": [
+      [
+        {
+          "product_name": "Batata Demo",
+          "product_category": "Categoria Demo",
+          "item_type": "produto",
+          "units_sold": 3970.0,
+          "orders_containing_item": 2675,
+          "item_sales_brl": 47640.0
+        },
+        {
+          "product_name": "Burger Demo B",
+          "product_category": "Categoria Demo",
+          "item_type": "produto",
+          "units_sold": 3998.0,
+          "orders_containing_item": 2670,
+          "item_sales_brl": 127936.0
+        },
+        {
+          "product_name": "Bebida Demo",
+          "product_category": "Categoria Demo",
+          "item_type": "produto",
+          "units_sold": 4008.0,
+          "orders_containing_item": 2659,
+          "item_sales_brl": 28056.0
+        },
+        {
+          "product_name": "Burger Demo A",
+          "product_category": "Categoria Demo",
+          "item_type": "produto",
+          "units_sold": 4147.0,
+          "orders_containing_item": 2748,
+          "item_sales_brl": 99528.0
+        }
+      ]
+    ]
+  },
+  {
+    "id": 10,
+    "question": "Complementos",
+    "sql": "10_complements.sql",
+    "limitation": "Classificação item_type da fonte, sem custos. Publicação com recorte fixo: grupos pequenos são omitidos e não há filtros livres de datas.",
+    "results": [
+      []
+    ]
+  },
+  {
+    "id": 11,
+    "question": "Grupos de clientes com maior valor",
+    "sql": "11_customer_groups.sql",
+    "limitation": "Faixas de frequência com pelo menos cinco clientes; nenhum cliente é exposto individualmente. Publicação com recorte fixo: grupos pequenos são omitidos e não há filtros livres de datas.",
+    "results": [
+      [
+        {
+          "frequency_group": "8+ pedidos",
+          "customers": 426,
+          "orders": 4893.0,
+          "received_brl": 289788.0,
+          "average_received_per_customer": 680.2535211267606
+        },
+        {
+          "frequency_group": "4-7 pedidos",
+          "customers": 72,
+          "orders": 436.0,
+          "received_brl": 26221.0,
+          "average_received_per_customer": 364.18055555555554
+        }
+      ]
+    ]
+  },
+  {
+    "id": 12,
+    "question": "Recorrência",
+    "sql": "12_recurrence.sql",
+    "limitation": "Somente pedidos com telefone válido pseudonimizado. Clientes sem chave não são classificados como únicos. Publicação com recorte fixo: grupos pequenos são omitidos e não há filtros livres de datas.",
+    "results": [
+      [
+        {
+          "identified_customers": 500,
+          "recurring_customers": 500,
+          "recurrence_rate": 1.0,
+          "identified_paid_orders": 5335.0
+        }
+      ]
+    ]
+  },
+  {
+    "id": 13,
+    "question": "Primeira observação, retorno e recência",
+    "sql": "13_customer_lifecycle.sql",
+    "limitation": "Primeira observação não é primeira compra na vida. Recência usa a última data da fonte. Publicação com recorte fixo: grupos pequenos são omitidos e não há filtros livres de datas.",
+    "results": [
+      [
+        {
+          "month_start": "2025-01-01 00:00:00",
+          "identified_customers": 344,
+          "first_seen_customers": 344,
+          "returning_customers": 0,
+          "identified_paid_orders": 583.0,
+          "received_brl": 34594.0
+        },
+        {
+          "month_start": "2025-02-01 00:00:00",
+          "identified_customers": 338,
+          "first_seen_customers": 101,
+          "returning_customers": 237,
+          "identified_paid_orders": 553.0,
+          "received_brl": 32737.0
+        },
+        {
+          "month_start": "2025-03-01 00:00:00",
+          "identified_customers": 364,
+          "first_seen_customers": 40,
+          "returning_customers": 324,
+          "identified_paid_orders": 642.0,
+          "received_brl": 38476.0
+        },
+        {
+          "month_start": "2025-04-01 00:00:00",
+          "identified_customers": 362,
+          "first_seen_customers": 12,
+          "returning_customers": 350,
+          "identified_paid_orders": 652.0,
+          "received_brl": 38341.0
+        },
+        {
+          "month_start": "2025-06-01 00:00:00",
+          "identified_customers": 396,
+          "first_seen_customers": 0,
+          "returning_customers": 396,
+          "identified_paid_orders": 717.0,
+          "received_brl": 41799.0
+        },
+        {
+          "month_start": "2025-07-01 00:00:00",
+          "identified_customers": 395,
+          "first_seen_customers": 0,
+          "returning_customers": 395,
+          "identified_paid_orders": 770.0,
+          "received_brl": 46254.0
+        },
+        {
+          "month_start": "2025-08-01 00:00:00",
+          "identified_customers": 363,
+          "first_seen_customers": 0,
+          "returning_customers": 363,
+          "identified_paid_orders": 694.0,
+          "received_brl": 41542.0
+        }
+      ],
+      [
+        {
+          "recency_group": "Mais de 60 dias",
+          "customers": 23
+        },
+        {
+          "recency_group": "31-60 dias",
+          "customers": 89
+        },
+        {
+          "recency_group": "Até 30 dias",
+          "customers": 388
+        }
+      ]
+    ]
+  },
+  {
+    "id": 14,
+    "question": "Canais e delivery",
+    "sql": "14_delivery.sql",
+    "limitation": "PDV, AppDelivery, iFood_App e 99Food são apresentados em recortes próprios e não somados. Publicação com recorte fixo: grupos pequenos são omitidos e não há filtros livres de datas.",
+    "results": [
+      [
+        {
+          "source_channel": "ifood",
+          "paid_orders": 1278,
+          "received_brl": 78802.0
+        },
+        {
+          "source_channel": "menudino_app_site",
+          "paid_orders": 1353,
+          "received_brl": 85292.0
+        }
+      ],
+      [
+        {
+          "comparable_days": 203,
+          "same_count_days": 203,
+          "items_difference_brl": 0.0
+        }
+      ],
+      [
+        {
+          "orders": 2013.0,
+          "covered_days": 203,
+          "first_order_date": "2025-01-02 00:00:00",
+          "last_order_date": "2025-08-26 00:00:00",
+          "sales_revenue_brl": 70455.0,
+          "shop_revenue_brl": 56364.0,
+          "commission_expense_brl": 14091.0,
+          "payment_channel_fee_brl": 0.0,
+          "orders_with_both_timestamps": 0.0,
+          "late_preparation_orders": 203.0,
+          "average_prep_minutes": 20.0,
+          "average_acceptance_seconds": 30.0,
+          "average_finalization_seconds": 900.0
+        }
+      ],
+      [
+        {
+          "reported_dates": 203,
+          "reported_orders": 1278.0,
+          "pdv_paid_orders": 1278.0,
+          "matching_dates": 202
+        }
+      ],
+      [
+        {
+          "month_start": "2025-01-01 00:00:00",
+          "delivery_type": "delivery",
+          "order_status": "entregue",
+          "orders": 141.0,
+          "items_value_brl": 8321.0,
+          "delivery_fee_brl": 705.0,
+          "first_date": "2025-01-02 00:00:00",
+          "last_date": "2025-01-31 00:00:00"
+        },
+        {
+          "month_start": "2025-02-01 00:00:00",
+          "delivery_type": "delivery",
+          "order_status": "entregue",
+          "orders": 138.0,
+          "items_value_brl": 8431.0,
+          "delivery_fee_brl": 690.0,
+          "first_date": "2025-02-01 00:00:00",
+          "last_date": "2025-02-28 00:00:00"
+        },
+        {
+          "month_start": "2025-03-01 00:00:00",
+          "delivery_type": "delivery",
+          "order_status": "entregue",
+          "orders": 165.0,
+          "items_value_brl": 9196.0,
+          "delivery_fee_brl": 825.0,
+          "first_date": "2025-03-01 00:00:00",
+          "last_date": "2025-03-30 00:00:00"
+        },
+        {
+          "month_start": "2025-04-01 00:00:00",
+          "delivery_type": "delivery",
+          "order_status": "entregue",
+          "orders": 157.0,
+          "items_value_brl": 9311.0,
+          "delivery_fee_brl": 785.0,
+          "first_date": "2025-04-01 00:00:00",
+          "last_date": "2025-04-30 00:00:00"
+        },
+        {
+          "month_start": "2025-05-01 00:00:00",
+          "delivery_type": "delivery",
+          "order_status": "entregue",
+          "orders": 189.0,
+          "items_value_brl": 11109.0,
+          "delivery_fee_brl": 945.0,
+          "first_date": "2025-05-01 00:00:00",
+          "last_date": "2025-05-31 00:00:00"
+        },
+        {
+          "month_start": "2025-06-01 00:00:00",
+          "delivery_type": "delivery",
+          "order_status": "entregue",
+          "orders": 185.0,
+          "items_value_brl": 10512.0,
+          "delivery_fee_brl": 925.0,
+          "first_date": "2025-06-01 00:00:00",
+          "last_date": "2025-06-29 00:00:00"
+        },
+        {
+          "month_start": "2025-07-01 00:00:00",
+          "delivery_type": "delivery",
+          "order_status": "entregue",
+          "orders": 203.0,
+          "items_value_brl": 11960.0,
+          "delivery_fee_brl": 1015.0,
+          "first_date": "2025-07-01 00:00:00",
+          "last_date": "2025-07-31 00:00:00"
+        },
+        {
+          "month_start": "2025-08-01 00:00:00",
+          "delivery_type": "delivery",
+          "order_status": "entregue",
+          "orders": 175.0,
+          "items_value_brl": 9687.0,
+          "delivery_fee_brl": 875.0,
+          "first_date": "2025-08-01 00:00:00",
+          "last_date": "2025-08-26 00:00:00"
+        }
+      ]
+    ]
+  },
+  {
+    "id": 15,
+    "question": "Instagram e Meta Ads",
+    "sql": "15_marketing.sql",
+    "limitation": "Instagram não é somado. Gasto de Meta é reconciliado com o total geral; correlação não demonstra causalidade. Publicação com recorte fixo: grupos pequenos são omitidos e não há filtros livres de datas.",
+    "results": [
+      [
+        {
+          "metric_key": "reach",
+          "observations": 203,
+          "first_date": "2025-01-02 00:00:00",
+          "last_date": "2025-08-26 00:00:00",
+          "first_value": 443.0,
+          "last_value": 485.0
+        },
+        {
+          "metric_key": "views",
+          "observations": 203,
+          "first_date": "2025-01-02 00:00:00",
+          "last_date": "2025-08-26 00:00:00",
+          "first_value": 264.0,
+          "last_value": 348.0
+        },
+        {
+          "metric_key": "link_clicks",
+          "observations": 203,
+          "first_date": "2025-01-02 00:00:00",
+          "last_date": "2025-08-26 00:00:00",
+          "first_value": 53.0,
+          "last_value": 327.0
+        },
+        {
+          "metric_key": "content_interactions",
+          "observations": 203,
+          "first_date": "2025-01-02 00:00:00",
+          "last_date": "2025-08-26 00:00:00",
+          "first_value": 358.0,
+          "last_value": 448.0
+        },
+        {
+          "metric_key": "profile_visits",
+          "observations": 203,
+          "first_date": "2025-01-02 00:00:00",
+          "last_date": "2025-08-26 00:00:00",
+          "first_value": 93.0,
+          "last_value": 345.0
+        },
+        {
+          "metric_key": "followers",
+          "observations": 203,
+          "first_date": "2025-01-02 00:00:00",
+          "last_date": "2025-08-26 00:00:00",
+          "first_value": 119.0,
+          "last_value": 119.0
+        }
+      ],
+      [
+        {
+          "spend_brl": 2558.0,
+          "impressions": 255005.0,
+          "link_clicks": 5562.0,
+          "link_clicks_missing_rows": 0.0,
+          "cpc_brl": 0.45990650845019776,
+          "link_ctr": 0.021811337032607205
+        }
+      ],
+      [
+        {
+          "paired_dates": 203,
+          "descriptive_correlation": -0.051042579709740236
+        }
+      ]
+    ]
+  }
+]

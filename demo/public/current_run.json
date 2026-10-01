@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "run_id": "20261001T005826Z_c8ab288c",
+  "cutoff": "2025-08-26",
+  "source_start": "2025-01-02",
+  "source_end": "2025-08-26",
+  "series_sha256": "20899350db4a47fa4d34ce648400d65a6aac499be09a21bfa9f56cfbd4f7d3a1",
+  "dbt_models_built": 20,
+  "dbt_tests_passed": 10,
+  "dataset_kind": "synthetic",
+  "public_schema_version": 1,
+  "publication_approved": true,
+  "aggregation_only": true,
+  "minimum_group_size": 5,
+  "updated_at_utc": "2026-10-01T00:59:02.452215+00:00",
+  "quality": {
+    "checks": {
+      "paid_order_count_matches_preparation": true,
+      "received_matches_preparation": true,
+      "paid_order_count_matches_raw": true,
+      "received_matches_raw": true,
+      "items_have_orders": true,
+      "orders_follow_privacy_allowlist": true,
+      "items_follow_privacy_allowlist": true,
+      "missing_calendar_days_match_source": true,
+      "meta_ads_spend_matches_report_total": true
+    },
+    "all_passed": true,
+    "paid_orders": 5335,
+    "received_brl": 316315.0,
+    "observed_days": 203,
+    "missing_days": 34,
+    "paid_orders_by_channel": {
+      "comanda_mobile": 1365,
+      "menudino_app_site": 1353,
+      "desktop": 1339,
+      "ifood": 1278
+    }
+  },
+  "analysis_results": "analysis/analysis_results.json",
+  "analysis_report": "analysis/analysis_report.md",
+  "forecast_metrics": "ml/forecast_metrics.json",
+  "publication_policy": {
+    "omitted_answer_rows": 1,
+    "omitted_ml_rows": 0,
+    "synthetic_only": true,
+    "free_date_filters": false
+  },
+  "artifact_sha256": {
+    "analysis/analysis_results.json": "8aaf6dc0a6ce486fc6d2f8f238cff1c711bba3fc34a072edc168d105ab53c847",
+    "analysis/analysis_report.md": "fd22774a324b3212d42a06e97cc496d86fef8fed34048c6ed0484ae022380d96",
+    "ml/forecast_metrics.json": "3be043d020c7bf1e9f040373a6f7eb732b65e5775699d59084cf6cff185461d4"
+  }
+}

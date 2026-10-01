@@ -1,0 +1,99 @@
+# Dados reais minimizados em volume privado, nunca incorporados à imagem.
+services:
+  jacare-private:
+    image: jacare-analytics-private:uploads-v1
+    pull_policy: never
+    container_name: jacare_private
+    restart: unless-stopped
+    environment:
+      JACARE_PUBLIC_MODE: "false"
+      JACARE_AUTH_MODE: oidc
+      JACARE_READ_ONLY: "true"
+      JACARE_IMPORT_QUEUE: /imports
+    expose:
+      - "8501"
+    volumes:
+      - type: bind
+        source: /opt/portfolio/jacare-analytics/private/imports
+        target: /imports
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /opt/portfolio/jacare-analytics/private/data
+        target: /app/data
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /opt/portfolio/jacare-analytics/private/secrets.toml
+        target: /app/.streamlit/secrets.toml
+        read_only: true
+        bind:
+          create_host_path: false
+    networks:
+      - private-proxy
+      - egress
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 1g
+    cpus: 1.0
+    pids_limit: 128
+    init: true
+  jacare-worker:
+    image: jacare-analytics-private:uploads-v1
+    pull_policy: never
+    container_name: jacare_worker
+    restart: unless-stopped
+    command: ["python", "-m", "jacare_analytics.upload_worker"]
+    environment:
+      JACARE_PUBLIC_MODE: "false"
+      JACARE_IMPORT_QUEUE: /imports
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      NUMEXPR_NUM_THREADS: "1"
+      DBT_SEND_ANONYMOUS_USAGE_STATS: "false"
+    network_mode: none
+    volumes:
+      - type: bind
+        source: /opt/portfolio/jacare-analytics/private/imports
+        target: /imports
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /opt/portfolio/jacare-analytics/private/data
+        target: /app/data
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /opt/portfolio/jacare-analytics/private/worker_secrets
+        target: /worker-secrets
+        read_only: true
+        bind:
+          create_host_path: false
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=256m
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 2g
+    cpus: 1.0
+    pids_limit: 128
+    init: true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import json,time,datetime; d=json.load(open('/imports/heartbeat.json')); assert time.time()-datetime.datetime.fromisoformat(d['at']).timestamp()<45"]
+      interval: 15s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+networks:
+  egress:
+    driver: bridge
+  private-proxy:
+    external: true
+    name: jacare_private_proxy

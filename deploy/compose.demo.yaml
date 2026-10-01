@@ -1,0 +1,31 @@
+services:
+  jacare-demo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jacare-analytics-demo:release
+    container_name: jacare_demo
+    restart: unless-stopped
+    environment:
+      JACARE_PUBLIC_MODE: "true"
+      JACARE_PUBLIC_DATA_DIR: /app/demo/public
+      JACARE_AUTH_MODE: oidc
+    expose:
+      - "8501"
+    networks:
+      - proxy
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 1g
+    cpus: 1.0
+    pids_limit: 128
+    init: true
+networks:
+  proxy:
+    external: true
+    name: evolync_network

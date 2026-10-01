@@ -1,0 +1,44 @@
+Valor Recebido =
+SUM ( Vendas_Diarias[amount_received_brl] )
+
+Pedidos Pagos =
+SUM ( Vendas_Diarias[paid_orders] )
+
+Ticket Médio =
+DIVIDE ( [Valor Recebido], [Pedidos Pagos] )
+
+Valor Recebido Mês Anterior =
+CALCULATE ( [Valor Recebido], DATEADD ( Calendario[Data], -1, MONTH ) )
+
+Crescimento Receita % =
+DIVIDE (
+    [Valor Recebido] - [Valor Recebido Mês Anterior],
+    [Valor Recebido Mês Anterior]
+)
+
+Pedidos por Hora =
+SUM ( Vendas_Hora[paid_orders] )
+
+Valor por Produto =
+SUM ( Produtos[item_sales_brl] )
+
+Unidades Vendidas =
+SUM ( Produtos[units_sold] )
+
+Ticket por Canal =
+DIVIDE (
+    SUM ( Vendas_Canal[amount_received_brl] ),
+    SUM ( Vendas_Canal[paid_orders] )
+)
+
+Taxa de Recorrência =
+MAX ( Recorrencia_Clientes[recurrence_rate] )
+
+Investimento Meta Ads =
+SUM ( Marketing_Diario[spend_brl] )
+
+CPC Meta Ads =
+DIVIDE (
+    [Investimento Meta Ads],
+    SUM ( Marketing_Diario[link_clicks] )
+)
