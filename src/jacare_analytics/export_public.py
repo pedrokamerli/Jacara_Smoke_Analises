@@ -248,7 +248,10 @@ def export_public_snapshot(output: Path, *, project_root: Path = ROOT, business_
     series = metric_path.parents[1] / "processed/daily_sales_ml.csv"
     with series.open(encoding="utf-8", newline="") as handle:
         orders = {row["date"]: float(row["paid_orders"]) if row["paid_orders"].strip() else math.nan for row in csv.DictReader(handle)}
-    metrics, omitted_ml = sanitize_metrics(json.loads(metric_path.read_text(encoding="utf-8")), orders)
+    public_metrics = json.loads(metric_path.read_text(encoding="utf-8"))
+    # Estudo de desenvolvimento é privado e não integra o contrato da demo.
+    public_metrics.pop('development_study', None)
+    metrics, omitted_ml = sanitize_metrics(public_metrics, orders)
     quality = manifest["quality"]
     allowed_quality = {"checks", "all_passed", "paid_orders", "received_brl", "observed_days", "missing_days", "paid_orders_by_channel"}
     if set(quality) - allowed_quality:

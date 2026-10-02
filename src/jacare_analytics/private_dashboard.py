@@ -44,6 +44,9 @@ def sales_query(warehouse, run_id, filters, sql, parameters=()):
 def money(value):
     return "R$ "+f"{float(value):,.2f}".replace(",","X").replace(".",",").replace("X",".")
 
+def narrative_money(value):
+    return money(value).replace('$', r'\$')
+
 def style_private():
     st.markdown("""<style>
     .stApp {background:#eef3f8;color:#18364d;}
@@ -84,6 +87,8 @@ def reset_filters():
 def filter_bar(manifest,warehouse,page):
     low,high=date.fromisoformat(manifest["source_start"]),date.fromisoformat(manifest["source_end"])
     with st.container(border=True,key="sales_toolbar"):
+        st.markdown('**1 · Escolha o recorte que deseja entender**')
+        st.caption('Comece por Mês específico para examinar a atualização mais recente. Histórico completo ajuda a enxergar a trajetória do negócio.')
         cols=st.columns([2,3,1])
         preset=cols[0].selectbox("Período de análise",["Histórico completo","Mês específico","Últimos 30 dias da base","Personalizado"],key="sales_preset")
         if preset=="Mês específico":
@@ -117,7 +122,9 @@ def filter_bar(manifest,warehouse,page):
             st.caption("Cartões, gráficos e tabelas usam os mesmos filtros. Seleção vazia = nenhum registro; Limpar filtros restaura tudo.")
         else:
             st.caption("Filtro temporal aplicado separadamente a cada fonte. Canal do PDV não é filtro de Instagram ou relatórios externos sem vínculo comprovado.")
-        st.caption(f"RECORTE ATIVO · {start:%d/%m/%Y} a {end:%d/%m/%Y} · {(end-start).days+1} dias de calendário")
+        names='Todos os canais' if channels is None else ', '.join(CHANNELS.get(x,x) for x in channels) or 'Nenhum canal'
+        day_names='Todos os dias da semana' if len(weekdays)==7 else ', '.join(DAYS[x] for x in weekdays) or 'Nenhum dia'
+        st.info(f"RECORTE ATIVO · {start:%d/%m/%Y} a {end:%d/%m/%Y} · {names} · {day_names}")
     return SalesFilter(start,end,channels,modes,weekdays)
 
 SUMMARY="select count(*) as orders,coalesce(sum(amount_received_brl),0) as amount,count(distinct cast(opened_at as date)) as active_days from selected_orders"
@@ -135,6 +142,7 @@ def item_labels(frame):
     return frame
 
 def overview(sq,filters,manifest,table):
+    st.subheader('2 · Entenda o resultado do recorte')
     summary=sq(SUMMARY).iloc[0]
     previous=None
     length=(filters.end-filters.start).days+1
@@ -150,6 +158,16 @@ def overview(sq,filters,manifest,table):
         delta=None if not old or not old[i] else f"{values[i]/old[i]-1:+.1%}".replace(".",",")
         col.metric(label,money(values[i]) if i in (0,2) else f"{values[i]:,}".replace(",","."),delta=delta,help=help_text)
     st.caption("Variação versus intervalo anterior de igual duração, com os mesmos filtros." if old else "Sem intervalo anterior elegível. Valores realizados; sem custos, não calculamos lucro.")
+    with st.container(border=True,key='panel_story_summary'):
+        st.markdown('**Em poucas palavras**')
+        st.write(f"Neste recorte, {count:,} pedidos pagos geraram {narrative_money(amount)}, distribuídos em {int(summary.active_days)} datas com pedidos. O valor médio recebido por pedido foi {narrative_money(amount/count)}. Isso mede vendas registradas, não lucro nem quantidade de clientes.")
+        if old and old[0]:
+            change=amount/old[0]-1
+            st.write(f"O valor recebido {'aumentou' if change>=0 else 'diminuiu'} {abs(change):.1%} frente ao intervalo anterior de igual duração, mantendo os filtros. A comparação descreve uma mudança, mas não revela sua causa.")
+            st.caption('Intervalos de mesma duração podem conter combinações diferentes de dias da semana e dias com captura. Não equivale a uma comparação de operação idêntica.')
+        else:
+            st.caption('Não há período anterior completo e elegível para esta comparação. Escolha um mês posterior ao início do histórico para explorar a mudança.')
+    st.subheader('3 · Veja quando e onde as vendas aconteceram')
     daily=sq("select cast(opened_at as date) as day,count(*) as orders,sum(amount_received_brl) as amount from selected_orders group by 1 order by 1")
     calendar=pd.DataFrame({"day":pd.date_range(filters.start,filters.end)})
     calendar=calendar.loc[calendar.day.dt.weekday.isin(filters.weekdays)]
@@ -164,10 +182,16 @@ def overview(sq,filters,manifest,table):
         metric=st.radio("Medida do gráfico",["Valor recebido","Pedidos pagos"],horizontal=True,key="sales_chart_metric")
         plot(daily,"day","amount" if metric=="Valor recebido" else "orders",x_title="Data",y_title="Valor recebido (R$)" if metric=="Valor recebido" else "Pedidos pagos")
         st.caption("Marcadores permitem ver um único dia. Lacunas = ausência ou grupo diário inferior a cinco; não representam zero.")
+        eligible=daily.dropna(subset=['amount'])
+        if not eligible.empty:
+            best=eligible.loc[eligible.amount.idxmax()]
+            st.write(f"Maior valor diário exibido: **{best.day:%d/%m/%Y}**, com **{money(best.amount)}**. O resultado considera somente os filtros e os dias elegíveis do gráfico.")
     with right,st.container(border=True,key="panel_monthly"):
         st.subheader("Evolução mensal")
         plot(monthly,"month","amount",x_title="Mês",y_title="Valor recebido (R$)",color=TEAL)
         st.caption("A linha mostra a evolução do valor recebido realizado nos filtros, não lucro ou projeções. Meses parciais não equivalem a meses completos.")
+        if len(monthly)==1:
+            st.caption('Há apenas um mês no recorte: um ponto é esperado, não uma falha do filtro. Use Histórico completo para enxergar a evolução mensal.')
     channels=sq("select source_channel as channel,count(*) as orders,sum(amount_received_brl) as amount from selected_orders group by 1 having count(*)>=5 order by 3 desc")
     channels.channel=channels.channel.map(lambda x:CHANNELS.get(x,x))
     items=item_labels(sq(PRODUCTS)).sort_values("units",ascending=False).head(8)
@@ -176,6 +200,9 @@ def overview(sq,filters,manifest,table):
         st.subheader("Canais do recorte")
         plot(channels,"channel","amount",horizontal=True,x_title="Canal",y_title="Valor recebido (R$)")
         st.caption("Origens do PDV; relatórios sobrepostos não são somados.")
+        if not channels.empty:
+            lead=channels.iloc[0]
+            st.write(f"**{lead.channel}** tem o maior valor recebido entre os canais elegíveis: {money(lead.amount)}. Isso não mede margem, satisfação ou eficiência do canal.")
     with right,st.container(border=True,key="panel_items"):
         st.subheader("Itens mais vendidos")
         plot(items,"item_label","units",horizontal=True,color=TEAL,x_title="Item",y_title="Unidades")
@@ -198,6 +225,10 @@ def overview(sq,filters,manifest,table):
         weekly=sq("select date_trunc('week',opened_at)::date as week_start,count(*) as paid_orders,sum(amount_received_brl) as amount_received_brl from selected_orders group by 1 having count(*)>=5 order by 1")
         table(weekly)
         st.caption("Semanas incluem somente datas/dimensões selecionadas; bordas podem ser parciais.")
+    st.subheader('4 · Transforme a leitura em uma próxima pergunta')
+    st.write('Explore Produtos para entender o mix, Clientes para estudar recompra e Delivery para conferir a cobertura das plataformas. Em Machine Learning, compare previsão e realizado antes de consultar novas estimativas.')
+    with st.expander('Dicionário rápido: o que significa cada número?'):
+        st.write('Valor recebido: soma dos pedidos pagos. Pedidos: compras registradas, não pessoas. Ticket médio: valor recebido ÷ pedidos. Dias com pedidos: datas com pelo menos uma compra no recorte, não todos os dias de abertura. Lacuna: valor não exibido; nunca presumimos zero. Variação: comparação descritiva, não efeito de uma campanha.')
 
 def products(sq,table):
     frame=item_labels(sq(PRODUCTS))

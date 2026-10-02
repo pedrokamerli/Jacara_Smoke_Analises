@@ -1,7 +1,7 @@
 # Dados reais minimizados em volume privado, nunca incorporados à imagem.
 services:
   jacare-private:
-    image: jacare-analytics-private:september-v2
+    image: jacare-analytics-private:story-v2
     pull_policy: never
     container_name: jacare_private
     restart: unless-stopped
@@ -45,7 +45,7 @@ services:
     pids_limit: 128
     init: true
   jacare-worker:
-    image: jacare-analytics-private:september-v2
+    image: jacare-analytics-private:story-v2
     pull_policy: never
     container_name: jacare_worker
     restart: unless-stopped

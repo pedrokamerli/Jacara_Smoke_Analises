@@ -307,6 +307,8 @@ def render_backtest_report(metrics: dict[str, Any]) -> str:
 
 def save_experiment(series_path: Path, output_dir: Path, calendar: dict | None = None) -> dict[str, Any]:
     metrics, models = _experiment(series_path, 8, 7,calendar)
+    from .model_research import study
+    metrics['development_study'] = study(series_path, metrics)
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "forecast_metrics.json").write_text(json.dumps(metrics, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
     (output_dir / "forecast_backtest.md").write_text(render_backtest_report(metrics), encoding="utf-8")

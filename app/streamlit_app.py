@@ -66,7 +66,7 @@ SOCIAL_LABELS = {"reach":"Alcance", "views":"Visualizações", "content_interact
 PAGE_HELP = {
     "Visão geral":"Acompanhe o movimento realizado. No privado, os filtros no topo controlam cartões, gráficos e tabelas juntos.",
     "Produtos":"Compare quantidade, valor de vendas e presença nos pedidos. Mais vendido não significa mais lucrativo: não temos dados de custos.",
-    "Clientes":"Entenda os hábitos de recompra por grupos. Nenhum nome, telefone, endereço ou código individual é mostrado.",
+    "Clientes":"Entenda recompra e frequência. No privado autorizado, nomes podem aparecer no ranking; na demo não existem clientes reais. Telefones, endereços e documentos não são exibidos.",
     "Delivery":"Veja MenuDino, iFood e 99Food e confira se os relatórios combinam com o sistema de vendas. Cada fonte pode cobrir datas diferentes.",
     "Marketing":"Acompanhe a atenção no Instagram e os resultados reportados dos anúncios. Cliques e visualizações não são compras comprovadas.",
 }
@@ -411,7 +411,7 @@ def monthly_projection(metrics, target) -> None:
     cols[1].metric("Dias de funcionamento planejados", f"{summary['predicted_open_days']}/{summary['predicted_calendar_days']}")
     cols[2].metric("Horizonte desde a origem", f"{projection['horizon_from_origin_days']} dias")
     st.caption(f"O total soma expectativas diárias, não vendas observadas. Antes de chegar ao mês, o modelo estima também {projection['bridge_days']} dias de ponte depois da última venda disponível, sem pular datas. Cada estimativa alimenta a próxima; erros podem se acumular. Não apresentamos um intervalo mensal de confiança sem validação.")
-    st.caption("Pedidos e valor recebido foram projetados por modelos independentes: dividir esses totais não produz um ticket validado nem um demonstrativo financeiro coerente. O histórico até agosto também não cobre um ciclo anual completo para aprender sazonalidade de setembro.")
+    st.caption("Pedidos e valor recebido foram projetados por modelos independentes: dividir esses totais não produz um ticket validado nem um demonstrativo financeiro coerente. Um histórico com menos de um ciclo anual não sustenta uma afirmação sobre sazonalidade anual.")
     rows = pd.DataFrame(projection["predictions"])
     chart = rows.set_index(pd.to_datetime(rows["date"]))[["prediction"]].rename(columns={"prediction":"Projeção diária"})
     chart.index.name = "Data projetada"
@@ -426,7 +426,7 @@ def monthly_projection(metrics, target) -> None:
     st.caption(projection["validation_policy"])
 
 
-def machine_learning(manifest) -> None:
+def machine_learning_audit(manifest, target=None) -> None:
     metrics = json.loads(RUNTIME.resolve_artifact(manifest["forecast_metrics"]).read_text(encoding="utf-8"))
     if metrics.get("schema_version") != 4 or metrics.get("series_sha256") != manifest.get("series_sha256"):
         st.error("O experimento de ML não corresponde à série da geração ativa. Atualize os dados.")
@@ -445,7 +445,8 @@ def machine_learning(manifest) -> None:
         st.write("Todos recebem calendário, vendas defasadas e médias anteriores, sem nomes, telefones ou endereços. As referências simples repetem o mesmo dia da semana passada ou usam a média recente de sete dias.")
         st.write("Escolho o algoritmo ML nas seis primeiras semanas de teste. Congelo essa escolha antes das duas semanas finais, reservadas para avaliação. Em cada semana, o treino usa somente informações anteriores. Esse teste no passado é chamado backtest. Não escolho outro modelo olhando o resultado final.")
         st.caption("Datas sem registro continuam sem alvo. A mediana preenche somente entradas do modelo, aprendida no treino. O backtest valida previsões de sete dias; o segundo bloco da estimativa de 14 dias é exploratório e ainda não tem avaliação independente desse horizonte.")
-    target = st.selectbox("O que prever", ["paid_orders", "total_received_brl"], key="ml_target", format_func=lambda key: {"paid_orders":"Pedidos pagos por dia", "total_received_brl":"Valor recebido por dia (R$)"}[key])
+    if target is None:
+        target = st.selectbox("O que prever", ["paid_orders", "total_received_brl"], key="ml_target", format_func=lambda key: {"paid_orders":"Pedidos pagos por dia", "total_received_brl":"Valor recebido por dia (R$)"}[key])
     result = metrics["targets"][target]
     selected_label = metrics["model_labels"][result["selected_model"]]
     format_error = (lambda value: f"{value:.2f}".replace(".", ",") + " pedidos") if target == "paid_orders" else money
@@ -457,7 +458,6 @@ def machine_learning(manifest) -> None:
     cols[1].metric("Erro final — semana anterior", format_error(result["candidate_models"]["seasonal_naive"]["holdout"]["mae"]))
     cols[2].metric("Dias comparáveis — teste final", result["holdout_comparable_days"], help="Amostra pequena: duas semanas de calendário, somente datas com resultado real e referências disponíveis.")
     st.write(f"No teste final, o modelo ficou, em média, {format_error(final['mae'])} distante do resultado real. Pode errar para cima ou para baixo.")
-    monthly_projection(metrics, target)
     st.subheader("Comparação dos quatro modelos e das duas referências")
     model_names = {**metrics["model_labels"], "seasonal_naive":"Repetir a semana anterior", "moving_average_7d":"Média recente de 7 dias"}
     rows = []
@@ -485,7 +485,7 @@ def machine_learning(manifest) -> None:
     table(folds)
     st.caption("Erros desta tabela estão em pedidos por dia ou reais por dia, conforme a opção escolhida. Menor erro é melhor.")
     st.subheader("Estimativa experimental após o fim do histórico")
-    horizon = st.radio("Horizonte da estimativa", [7, 14], key="ml_horizon", format_func=lambda value:f"{value} dias", horizontal=True)
+    horizon = st.radio("Horizonte da auditoria", [7, 14], key="ml_audit_horizon", format_func=lambda value:f"{value} dias", horizontal=True)
     forecast = pd.DataFrame(result["experimental_forecast"][:horizon])
     forecast["Situação"] = forecast["scheduled_open"].map({True:"Funcionamento previsto", False:"Fechamento planejado"})
     forecast = forecast.drop(columns=["scheduled_open", "prediction_origin"]).rename(columns={"date":"Data", "prediction":"Estimativa do modelo", "residual_band_low":"Faixa exploratória: de", "residual_band_high":"Faixa exploratória: até"})
@@ -497,7 +497,7 @@ def machine_learning(manifest) -> None:
     st.caption(f"Faixa exploratória: percentis 10 e 90 dos resíduos de apenas {result['holdout_comparable_days']} dias do teste final. Não é intervalo de confiança calibrado nem garantia de cobertura. Pedidos fracionários representam expectativa média. Segunda-feira aparece com zero pela regra de fechamento, não por observação de venda.")
     if horizon == 14:
         st.warning("O teste mede desempenho em sete dias. A segunda semana usa estimativas anteriores como entrada; erros podem se acumular. Ainda não validamos a qualidade específica do horizonte de 14 dias.")
-    st.download_button("Baixar estimativas agregadas (CSV)", forecast.to_csv(index=False).encode("utf-8-sig"), file_name=f"jacare_estimativas_{target}_{horizon}d.csv", mime="text/csv")
+    st.download_button("Baixar estimativas da auditoria (CSV)", forecast.to_csv(index=False).encode("utf-8-sig"), file_name=f"jacare_auditoria_{target}_{horizon}d.csv", mime="text/csv")
     st.subheader("Já podemos usar para decidir compras ou equipe?")
     st.warning("Ainda não como ferramenta operacional. Precisamos de histórico atualizado e conferir as exceções históricas ao horário informado. Mostrar uma previsão não significa que ela esteja aprovada para compras ou escala de equipe.")
     st.write("O critério estatístico foi atingido neste indicador." if result["statistical_gate_passed"] else "O critério estatístico ainda não foi atingido neste indicador.")
@@ -518,6 +518,11 @@ def machine_learning(manifest) -> None:
         else:
             st.info("Este algoritmo não fornece importância interna equivalente às árvores. Não inventamos pesos para completar o gráfico.")
         st.caption("Modelos ajustados ficam somente no ambiente privado. A versão pública não recebe arquivos de modelo, chaves ou pedidos individuais.")
+
+
+def machine_learning(manifest) -> None:
+    from jacare_analytics.ml_story import render_ml_story
+    render_ml_story(RUNTIME, manifest, money, table, monthly_projection, machine_learning_audit)
 
 
 def methodology(manifest) -> None:
@@ -610,6 +615,11 @@ def main() -> None:
     st.sidebar.caption("Passe o cursor nos ícones de ajuda dos indicadores e nos títulos das colunas para ler as definições.")
     if page in PAGE_HELP:
         st.write(PAGE_HELP[page])
+    if page == 'Visão geral':
+        with st.expander('Comece aqui · qual problema este projeto resolve?', expanded=True):
+            st.write('Uma hamburgueria real de Bauru precisava transformar relatórios de vendas em uma leitura do negócio. Organizei o trabalho com CRISP-DM: entender as perguntas, conferir as fontes, preparar dados, modelar, avaliar e entregar um dashboard atualizado por importação.')
+            st.write('A história tem três partes: **o que aconteceu** nas vendas, **quem e o que aparece no resultado**, e **o que podemos estimar** sem confundir previsão com certeza. Comece pelos filtros e cartões; depois compare as linhas no tempo.')
+            st.caption('Python prepara; Parquet armazena; SQL e DuckDB consultam; dbt organiza e testa as transformações; scikit-learn avalia modelos; Streamlit apresenta. Não usamos custos inexistentes para calcular lucro. Na demo, todos os resultados são sintéticos e não comprovam o desempenho real do cliente.')
     if RUNTIME.public_mode:
         public_page(page, manifest)
         return
@@ -620,8 +630,6 @@ def main() -> None:
     if page == "Machine Learning":
         st.caption("ESCOPO: experimento salvo da geração completa. Filtros de vendas não retreinam nem alteram a origem do modelo.")
         machine_learning(manifest)
-        from jacare_analytics.forecast_archive import render_comparison
-        render_comparison(RUNTIME,manifest)
         return
     if page == "Metodologia":
         methodology(manifest)

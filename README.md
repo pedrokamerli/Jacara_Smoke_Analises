@@ -4,6 +4,20 @@ Estou desenvolvendo este projeto com dados reais de uma hamburgueria de Bauru/SP
 
 Separei o ambiente **real e confidencial** da **demo pública**. As fontes originais e o segredo de pseudonimização ficam locais. A área privada na VPS recebe somente um snapshot analítico minimizado, protegido por login Google e lista de contas autorizadas. A demo usa dados sintéticos independentes, gerados com semente fixa e processados pela mesma stack; não representa o desempenho da hamburgueria. Ela inclui respostas, gráficos e ML treinado separadamente.
 
+## Como apresento os resultados
+
+Organizei o dashboard como uma leitura do negócio, não como uma coleção de gráficos. Primeiro explico a pergunta e o recorte; depois mostro o resultado, sua interpretação e o limite da conclusão. Os filtros de vendas controlam cartões, gráficos e tabelas juntos. Um mês selecionado pode produzir apenas um ponto na evolução mensal: isso é esperado, não um filtro quebrado.
+
+No ML, a leitura segue quatro etapas: previsão preservada versus realizado; avaliação do modelo contra regras simples; estimativas futuras; e construção/auditoria. MAE é erro médio diário e WAPE é erro proporcional ao volume — não uma taxa de acerto. Origem dos dados de treino não equivale à data de emissão da previsão. Nunca reescrevo uma previsão antiga depois de receber os resultados.
+
+Também mantenho um estudo retrospectivo de atributos: representação cíclica do dia da semana e média das quatro ocorrências anteriores do mesmo dia, com Extra Trees e Ridge. A variante é escolhida antes das janelas finais, mas como esse período já foi examinado no desenvolvimento anterior, seus resultados não são uma nova validação independente. Ganho não demonstrado é registrado como tal; o estudo não substitui automaticamente o modelo vigente. A validação futura requer novos dados.
+
+A apresentação foi orientada pelas recomendações de [texto e contexto dos gráficos da ONS](https://service-manual.ons.gov.uk/data-visualisation/guidance/chart-text), pela distinção entre [explorar e explicar dados](https://www.storytellingwithdata.com/blog/2021/8/16/exploring-data-is-different-than-explaining-data) e pelo exemplo de [atributos defasados e avaliação temporal do scikit-learn](https://scikit-learn.org/stable/auto_examples/applications/plot_time_series_lagged_features.html). Adaptei esses princípios ao projeto; eles não constituem uma certificação da aplicação.
+
+### Minha apresentação do projeto
+
+Transformei relatórios de uma hamburgueria real em um projeto de analytics de ponta a ponta, seguindo CRISP-DM. Trabalhei com ingestão e validação em Python, modelagem SQL/dbt em DuckDB, atualização por upload e avaliação temporal de machine learning. O dashboard responde perguntas de vendas, produtos, canais e recompra, explicando o significado e os limites dos resultados. Comparei previsões preservadas com novos dados sem reescrever o passado. A entrega separa o ambiente confidencial, protegido por login Google, de uma demonstração sintética pública. Meu foco foi tornar a análise reproduzível e compreensível — sem prometer lucro, causalidade ou uma precisão que os dados não demonstram.
+
 ## Stack e decisões
 
 | Tecnologia | Aplicação |
