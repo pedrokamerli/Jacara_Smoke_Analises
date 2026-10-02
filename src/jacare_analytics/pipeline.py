@@ -110,6 +110,9 @@ def run_pipeline(
         "dbt_models_built": sum(row["unique_id"].startswith("model.") for row in dbt_result["results"]),
         "dbt_tests_passed": sum(row["unique_id"].startswith("test.") and row["status"] == "pass" for row in dbt_result["results"]),
     })
+    manifest['source_availability']=source.get('source_availability',{})
+    if (processed/'customer_directory.parquet').exists():
+        manifest['customer_directory']=(processed/'customer_directory.parquet').relative_to(project_root).as_posix()
     candidate = project_root / "data" / f"current_run.{run_id}.tmp"
     candidate.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     os.replace(candidate, project_root / "data" / "current_run.json")

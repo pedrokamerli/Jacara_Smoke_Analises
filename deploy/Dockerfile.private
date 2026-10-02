@@ -1,6 +1,7 @@
 FROM jacare-analytics-demo:release
 USER root
-RUN pip install --no-cache-dir 'httpx>=0.27,<1'
+RUN apt-get update && apt-get install -y --no-install-recommends libarchive-tools && rm -rf /var/lib/apt/lists/* \
+    && pip install --no-cache-dir 'httpx>=0.27,<1' 'rarfile>=4.2,<5'
 USER 10001:10001
 ENV PYTHONPATH=/app/src:/app
 COPY app/ /app/app/

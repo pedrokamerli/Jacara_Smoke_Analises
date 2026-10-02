@@ -22,6 +22,19 @@ O modo público é somente leitura e exige um pacote separado, revisado e aprova
 
 ## Minimização e publicação
 
+### Cadastro nominal exclusivamente privado
+
+Por solicitação do responsável pelo projeto, a versão privada autenticada pode
+mostrar rankings de clientes por nome, compras e valor recebido. Um artefato
+separado liga o nome ao HMAC já usado no warehouse; telefones, e-mails,
+endereços, documentos e datas de nascimento não são persistidos nesse cadastro.
+Esse artefato é confidencial, continua sendo dado pessoal, não entra no Git,
+na imagem Docker, na demo ou nas respostas públicas. Nomes conflitantes para
+uma mesma chave são omitidos. Os controles de autenticação são executados
+antes de qualquer leitura. As regras de agregação abaixo se aplicam ao público
+e às respostas compartilháveis; o ranking privado é uma exceção explícita de
+acesso restrito, não uma anonimização nem uma autorização para compartilhá-lo.
+
 - Manter em cada modelo apenas as colunas necessárias para uma pergunta de negócio.
 - Excluir identificadores pessoais e observações livres das tabelas analíticas públicas.
 - Restringir dados por cliente a um ambiente local e pseudonimizado; no dashboard externo, apresentar apenas grupos e totais agregados.

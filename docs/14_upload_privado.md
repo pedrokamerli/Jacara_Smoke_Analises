@@ -7,7 +7,7 @@ responsável pelo projeto quanto o proprietário podem enviar arquivos. Não há
 no site público e não são criadas novas permissões para outras contas.
 
 1. No menu lateral, escolha **Atualizar dados**.
-2. Envie o ZIP oficial atualizado ou selecione os arquivos XLSX/CSV de uma vez.
+2. Envie ZIP, RAR simples ou selecione os arquivos XLSX/CSV de uma vez.
 3. Informe a última data realmente completa. Para setembro completo: **30/09/2026**.
 4. Confirme que o pacote contém o histórico consolidado.
 5. Clique em **Enviar e processar atualização** e acompanhe as etapas.
@@ -17,7 +17,7 @@ O processo continua se o navegador for fechado. A tela consulta o andamento a ca
 cinco segundos. Se o worker estiver indisponível, o envio é recusado; não fica
 parecendo uma atualização aprovada. Só um pacote é processado por vez.
 
-### O que deve estar no ZIP
+### O que deve estar no pacote
 
 Esta versão recebe **um pacote cumulativo**, não faz mesclagem automática de lotes
 mensais. Para atualizar setembro sem perder janeiro–agosto, exporte o histórico do
@@ -34,6 +34,34 @@ explícito no dashboard e não autoriza somar relatórios sobrepostos.
 | Instagram | Seis CSVs oficiais: alcance, visualizações, interações, visitas, cliques e seguidores; nomes mantêm o identificador Instagram e da métrica |
 | Meta Ads | `04_Relatorio_Meta_Atualizado_ate_...xlsx`, opcional |
 | iFood adicional | `01_Analise_Jacare_Tratada.xlsx`, opcional |
+
+Somente pedidos e histórico de itens são obrigatórios. As demais fontes são
+opcionais e ficam ausentes se não forem enviadas. Também são aceitos os nomes
+oficiais `Todos os pedidos...xlsx`, `Historico_Itens_Vendidos...xlsx`,
+`99food.xlsx`, `relatorio ifood.xlsx` e `Lista-Clientes...xlsx`. O iFood pode
+usar o export nativo de pedidos, inclusive quando suas dimensões Excel estão
+incorretas. Os significados das colunas continuam validados.
+
+O cadastro opcional conserva apenas nome e identificador HMAC, sem contatos,
+documentos ou endereço. Rankings nominais existem somente no privado autenticado.
+Identificadores com nomes conflitantes são omitidos. Produtos resumidos e listas
+de clientes não substituem pedidos e itens nem entram como novas vendas.
+
+RAR é lido com `rarfile` e o backend nativo `bsdtar`, sem extrair caminhos.
+Limites de tamanho, expansão, profundidade e tempo continuam ativos. Arquivos
+com senha, vários volumes, links ou variantes incompatíveis são recusados com
+orientação para ZIP. Referência: https://rarfile.readthedocs.io/.
+
+### Comparar a previsão original com a atualização
+
+Na aba Machine Learning, selecione a origem preservada e o indicador. A previsão
+original não é recalculada com o resultado do mês. O painel compara somente as
+mesmas datas observadas elegíveis, informa cobertura e ausência de registros e
+mostra MAE, RMSE, WAPE e viés, com detalhamento diário e semanal. WAPE não é
+taxa de acerto; um total próximo do realizado pode esconder erros diários.
+O novo treinamento gera projeções separadas para o próximo mês completo. A
+origem de dados não equivale à data de emissão da previsão. Essa avaliação
+retrospectiva não torna o horizonte mensal validado nem aprova decisões automáticas.
 
 As datas dos nomes podem mudar; as colunas, abas e significados continuam sujeitos
 aos contratos dos leitores. Um ZIP qualquer ou um relatório com outro layout não é

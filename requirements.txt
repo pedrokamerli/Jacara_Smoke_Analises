@@ -1,6 +1,7 @@
 # Leitura e preparação de Excel/CSV
 pandas>=2.2,<4
 openpyxl>=3.1,<4
+rarfile>=4.2,<5
 pyarrow>=18,<25
 
 # Warehouse local e transformações SQL

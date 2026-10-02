@@ -62,6 +62,10 @@ def publish_snapshot(work: Path, data: Path, manifest: dict, previous: dict, job
     analysis=(data.parent/manifest["analysis_report"]).with_name("analysis_results.json")
     shutil.copyfile((work/manifest["analysis_report"]).with_name("analysis_results.json"),analysis)
     source_target=data.parent/manifest["source_manifest"]
+    if manifest.get('customer_directory'):
+        target=data.parent/manifest['customer_directory']
+        target.parent.mkdir(parents=True,exist_ok=True,mode=0o700)
+        shutil.copyfile(work/manifest['customer_directory'],target)
     atomic_json(source_target,{"dataset_kind":"real_confidential","run_id":run,"originals_retained":False,"source_sha256":{key:entry["sha256"] for key,entry in source["sources"].items()}},mode=0o400)
     manifest={**manifest,"sources":{},"deployment_storage":"materialized_dbt_snapshot","import_job_id":job_id}
     # Artefatos imutáveis; leitores existentes continuam usando seus arquivos antigos.

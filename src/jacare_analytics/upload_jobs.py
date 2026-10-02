@@ -14,8 +14,9 @@ from .authentication import authorized_import_admin
 from .prepare_social_sources import METRIC_PREFIXES
 from .source_files import SourceFile, MAX_FILE_BYTES, MAX_UPLOAD_BYTES, logical_name, validate_payload
 
-REQUIRED = frozenset({"orders", "items", "appdelivery", "food99", *["instagram_"+key for key in METRIC_PREFIXES]})
+REQUIRED = frozenset({"orders", "items"})
 ROLES = {"orders":"Pedidos do PDV", "items":"Itens vendidos", "appdelivery":"AppDelivery / MenuDino", "food99":"99Food", "meta_ads":"Meta Ads (opcional)", "ifood_report":"Relatório adicional iFood (opcional)", **{"instagram_"+key:"Instagram: "+key for key in METRIC_PREFIXES}}
+ROLES['customers']='Cadastro de clientes (nomes somente no privado)'
 ACTIVE = {"queued", "running"}
 
 
@@ -58,6 +59,11 @@ def submit_job(root: Path, bundle: dict[str,SourceFile], cutoff: date, claims: d
     # Revalidar no envio, não confiar em menu oculto ou session_state.
     if not authorized_import_admin(claims,access,now):
         raise PermissionError("Somente uma conta com permissão de upload pode atualizar os dados")
+    return _enqueue_job(root,bundle,cutoff,actor=claims['sub'])
+
+
+def _enqueue_job(root,bundle,cutoff,*,actor):
+    """Uso interno: UI já autorizada ou operador via SSH. Não é uma rota pública."""
     if cutoff>date.today(): raise ValueError("A data completa não pode estar no futuro")
     if REQUIRED-bundle.keys(): raise ValueError("Envie todas as fontes obrigatórias do pacote consolidado")
     if set(bundle)-ROLES.keys(): raise ValueError("Fonte não autorizada")
@@ -101,7 +107,7 @@ def submit_job(root: Path, bundle: dict[str,SourceFile], cutoff: date, claims: d
             target.chmod(0o600)
             files[key]={"stored":stored,"name":item.name,"sha256":item.sha256}
         atomic_json(path/"request.json",{"job_id":job_id,"cutoff":cutoff.isoformat(),"files":files})
-        atomic_json(path/"status.json",{"job_id":job_id,"state":"queued","created_at":timestamp(),"step":"Na fila", "actor_sha256":hashlib.sha256(claims["sub"].encode()).hexdigest()})
+        atomic_json(path/"status.json",{"job_id":job_id,"state":"queued","created_at":timestamp(),"step":"Na fila", "actor_sha256":hashlib.sha256(actor.encode()).hexdigest()})
         return job_id
     except Exception:
         if "path" in locals() and path.exists() and not (path/"status.json").exists(): cleanup_inputs(path)

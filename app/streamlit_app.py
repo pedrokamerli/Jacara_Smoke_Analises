@@ -549,8 +549,6 @@ def public_page(page, manifest) -> None:
         return
     if page == "Machine Learning":
         machine_learning(manifest)
-        from jacare_analytics.forecast_archive import render_comparison
-        render_comparison(RUNTIME,manifest)
         return
     if page == "Metodologia":
         methodology(manifest)
@@ -622,6 +620,8 @@ def main() -> None:
     if page == "Machine Learning":
         st.caption("ESCOPO: experimento salvo da geração completa. Filtros de vendas não retreinam nem alteram a origem do modelo.")
         machine_learning(manifest)
+        from jacare_analytics.forecast_archive import render_comparison
+        render_comparison(RUNTIME,manifest)
         return
     if page == "Metodologia":
         methodology(manifest)

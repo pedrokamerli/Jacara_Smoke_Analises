@@ -23,7 +23,7 @@ CUTOFF = date(2026, 8, 19)
 
 
 def prepare_bundle(bundle: dict[str, SourceFile], output_dir: Path, private_dir: Path, cutoff: date = CUTOFF) -> dict[str, Any]:
-    required = {"orders", "items", "appdelivery", "food99", *[f"instagram_{metric}" for metric in METRIC_PREFIXES]}
+    required = {"orders", "items"}
     missing = required - bundle.keys()
     if missing:
         raise ValueError("Fontes necessárias ausentes: " + ", ".join(sorted(missing)))
@@ -35,17 +35,28 @@ def prepare_bundle(bundle: dict[str, SourceFile], output_dir: Path, private_dir:
     paid = orders.loc[orders["order_status"].eq("paid")].copy()
     if paid.empty or paid["amount_received_brl"].isna().any():
         raise ValueError("Há pedidos pagos sem valor recebido ou nenhum pedido pago disponível.")
-    appdelivery, app_metadata = _prepare_appdelivery(bundle["appdelivery"].payload)
-    food99, food_metadata = _prepare_99food(bundle["food99"].payload)
+    if 'appdelivery' in bundle:
+        appdelivery, app_metadata = _prepare_appdelivery(bundle['appdelivery'].payload)
+    else:
+        appdelivery=pd.DataFrame(columns=['order_date','delivery_type','order_status','orders','items_value_brl','delivery_fee_brl'])
+        app_metadata={'appdelivery_available':False}
+    if 'food99' in bundle:
+        food99, food_metadata = _prepare_99food(bundle['food99'].payload)
+    else:
+        counts=['orders','orders_with_completion_timestamp','orders_with_cancellation_timestamp','orders_with_both_timestamps','late_preparation_orders','items_count','rating_count','rating_sum']
+        amounts=['sales_revenue','shop_revenue','offer_expenses','commission_expense','payment_channel_fee','platform_rewards','original_delivery_fee','new_customer_delivery_fee','refund','free_delivery_net_cost','logistics_cost']
+        durations=[field+'_'+suffix for field in ['prep_minutes','acceptance_seconds','finalization_seconds','delivery_seconds'] for suffix in ['sum','count']]
+        food99=pd.DataFrame(columns=['order_date']+counts+[field+'_brl' for field in amounts]+durations)
+        food_metadata={'99food_available':False}
     app_metadata["appdelivery_records_after_cutoff"] = int(appdelivery.loc[appdelivery["order_date"] > cutoff, "orders"].sum())
     food_metadata["99food_records_after_cutoff"] = int(food99.loc[food99["order_date"] > cutoff, "orders"].sum())
     appdelivery = appdelivery.loc[appdelivery["order_date"] <= cutoff]
     food99 = food99.loc[food99["order_date"] <= cutoff]
     records = []
     for metric in METRIC_PREFIXES:
-        source = bundle[f"instagram_{metric}"]
-        records.extend(_read_metric(source.payload, source.name, metric))
-    instagram = pd.DataFrame.from_records(records)
+        source = bundle.get(f"instagram_{metric}")
+        if source: records.extend(_read_metric(source.payload, source.name, metric))
+    instagram = pd.DataFrame.from_records(records,columns=['metric_date','metric_key','source_label','metric_value'])
     instagram = instagram.loc[instagram["metric_date"] <= cutoff]
     marketing_report: dict[str, Any] = {"available": "meta_ads" in bundle}
     if "meta_ads" in bundle:
@@ -72,6 +83,11 @@ def prepare_bundle(bundle: dict[str, SourceFile], output_dir: Path, private_dir:
     daily.loc[observed_without_paid, ["paid_orders", "total_received_brl"]] = 0
     daily["total_received_brl"] = daily["total_received_brl"].round(2)
     output_dir.mkdir(parents=True, exist_ok=True)
+    customer_report={'available':False}
+    if 'customers' in bundle:
+        from .customer_directory import prepare_customer_directory
+        directory,customer_report=prepare_customer_directory(bundle['customers'].payload,secret)
+        directory.to_parquet(output_dir/'customer_directory.parquet',index=False)
     for name, frame in {
         "orders": orders, "items": items, "appdelivery_daily": appdelivery,
         "food99_daily": food99, "instagram_daily": instagram, "meta_ads_daily": meta_ads,
@@ -94,6 +110,8 @@ def prepare_bundle(bundle: dict[str, SourceFile], output_dir: Path, private_dir:
             "items": {key: int(value) for key,value in items.isna().sum().items()},
         },
         "marketing": marketing_report,
+        "customers":customer_report,
+        "source_availability":{key:key in bundle for key in ['orders','items','appdelivery','food99','ifood_report','meta_ads',*[f'instagram_{metric}' for metric in METRIC_PREFIXES],'customers']},
         "ifood": ifood_report,
         **order_metadata, **item_metadata, **app_metadata, **food_metadata,
     }

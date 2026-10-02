@@ -262,6 +262,14 @@ def customers(sq,filters,table):
         st.caption("Primeira aparição usa o histórico geral, não a primeira compra da vida. Retorno e recência incluem só clientes ativos nos filtros; recência é a última compra selecionada até a data final. Grupos pequenos não são exibidos.")
 
 def render_private(page,manifest,root,table,raw,delivery,marketing):
+    availability=manifest.get('source_availability')
+    if availability is not None:
+        if page=='Marketing' and not any(availability.get(key) for key in availability if key.startswith('instagram_') or key=='meta_ads'):
+            st.info('Este pacote não contém Instagram ou Meta Ads. Vendas e ML foram atualizados; as métricas de marketing não foram fornecidas e não foram preenchidas com zero.')
+            return
+        if page=='Delivery':
+            absent=[label for key,label in [('appdelivery','AppDelivery'),('food99','99Food'),('ifood_report','relatório adicional iFood')] if not availability.get(key)]
+            if absent: st.caption('Fontes adicionais ausentes neste pacote: '+', '.join(absent)+'. Canais registrados no PDV continuam disponíveis; não somamos bases sobrepostas.')
     warehouse=str(root/manifest["warehouse"])
     filters=filter_bar(manifest,warehouse,page)
     if filters is None: return
@@ -272,7 +280,10 @@ def render_private(page,manifest,root,table,raw,delivery,marketing):
         return
     if page=="Visão geral": overview(sq,filters,manifest,table)
     elif page=="Produtos": products(sq,table)
-    elif page=="Clientes": customers(sq,filters,table)
+    elif page=="Clientes":
+        from .customer_directory import render_customer_ranking
+        render_customer_ranking(sq,manifest,root,table)
+        customers(sq,filters,table)
     else:
         period=(filters.start.isoformat(),filters.end.isoformat())
         if page=="Delivery": delivery(raw,period)

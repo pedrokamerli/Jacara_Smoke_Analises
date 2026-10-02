@@ -21,6 +21,8 @@ data/
 demo/*
 !demo/public/
 *.zip
+*.rar
+*.7z
 data/raw/
 data/private/
 data/interim/

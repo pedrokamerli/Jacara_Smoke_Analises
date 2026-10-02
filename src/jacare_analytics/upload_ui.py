@@ -40,12 +40,12 @@ def render_upload(runtime,manifest):
     jobs=list_jobs(runtime.import_queue)
     active=any(job["state"] in {"queued","running"} for job in jobs)
     nonce=st.session_state.get("upload_nonce",0)
-    uploads=st.file_uploader("Relatórios oficiais ou ZIPs",type=["zip","xlsx","csv"],accept_multiple_files=True,key=f"admin_upload_{nonce}",disabled=active,help="Até 200 MiB no total; fontes até 100 MiB e limite de descompressão. Nenhum arquivo é executado.")
+    uploads=st.file_uploader("Relatórios oficiais, ZIP ou RAR",type=["zip","rar","xlsx","csv"],accept_multiple_files=True,key=f"admin_upload_{nonce}",disabled=active,help="Até 200 MiB no total. RAR sem senha ou múltiplos volumes; se o formato não for suportado, converta para ZIP. Nenhum arquivo é executado.")
     cutoff=st.date_input("Última data completa do pacote",value=date.fromisoformat(manifest["cutoff"]) if manifest else date.today(),max_value=date.today(),format="DD/MM/YYYY",disabled=active)
     st.caption("Ao importar setembro completo, selecione 30/09/2026. A data deve refletir a cobertura real, não a data de hoje.")
     with st.expander("Quais arquivos preciso enviar?",expanded=True):
         for role in sorted(REQUIRED): st.write("• "+ROLES[role])
-        st.caption("Meta Ads e relatório adicional iFood são opcionais. Se não forem enviados, a nova geração informa ausência dessas fontes; não reutiliza silenciosamente dados antigos. Nomes com datas atualizadas são aceitos, mantendo o formato oficial das planilhas.")
+        st.caption("Pedidos e histórico de itens do PDV são obrigatórios. 99Food, iFood, AppDelivery, Instagram, Meta Ads e Lista-Clientes são opcionais: envie os que tiver. Fontes não enviadas ficam explicitamente ausentes na nova geração, sem reaproveitamento silencioso. Lista-Clientes habilita nomes apenas no privado. Relatórios resumidos de produtos não substituem o histórico de itens e não geram cálculos de lucro sem validação de custos.")
     checked=st.checkbox("Confirmo que o pacote é consolidado e que a data final representa um dia completo",disabled=active)
     if st.button("Enviar e processar atualização",type="primary",disabled=active or not checked or not uploads):
         # Reautorizar nesta ação, inclusive se a sessão expirou depois de abrir a tela.

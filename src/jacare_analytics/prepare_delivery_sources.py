@@ -84,6 +84,10 @@ def _read_sheet(payload: bytes):
     rows = worksheet.iter_rows(values_only=True)
     headers = next(rows, ())
     columns = {_normalize_header(value): index for index, value in enumerate(headers)}
+    # Nomes equivalentes usados pelo export oficial mais recente do 99Food.
+    for original,alias in [('Despesas de ofertas da loja','Despesas de marketing'),('Despesas de comissão da loja','Despesas de comissão'),('Taxa de canal de pagamento da loja','Taxas de processamento de pagamento')]:
+        if _normalize_header(original) not in columns and _normalize_header(alias) in columns:
+            columns[_normalize_header(original)]=columns[_normalize_header(alias)]
     return workbook, rows, columns
 
 

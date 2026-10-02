@@ -1,7 +1,7 @@
 # Dados reais minimizados em volume privado, nunca incorporados à imagem.
 services:
   jacare-private:
-    image: jacare-analytics-private:uploads-v1
+    image: jacare-analytics-private:september-v2
     pull_policy: never
     container_name: jacare_private
     restart: unless-stopped
@@ -35,7 +35,7 @@ services:
       - egress
     read_only: true
     tmpfs:
-      - /tmp:rw,noexec,nosuid,size=64m
+      - /tmp:rw,noexec,nosuid,size=256m
     cap_drop:
       - ALL
     security_opt:
@@ -45,7 +45,7 @@ services:
     pids_limit: 128
     init: true
   jacare-worker:
-    image: jacare-analytics-private:uploads-v1
+    image: jacare-analytics-private:september-v2
     pull_policy: never
     container_name: jacare_worker
     restart: unless-stopped

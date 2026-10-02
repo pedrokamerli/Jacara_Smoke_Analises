@@ -67,7 +67,7 @@ A implementação técnica não encerra todas as validações de negócio. O hor
 
 As consultas estão em [sql/business](sql/business). Cada geração produz `analysis/analysis_report.md` e `analysis_results.json` com respostas agregadas e ressalvas. No dashboard, a tela **15 perguntas e respostas** apresenta cada resultado em linguagem simples, explica sua interpretação e permite conferir as tabelas e a consulta SQL. As narrativas são calculadas sobre os resultados da geração ativa, sem números fixos. O relatório pode ser baixado nessa tela e em **Metodologia**. A cobertura de cada pergunta está em [docs/07_perguntas_e_evidencias.md](docs/07_perguntas_e_evidencias.md).
 
-Produtos de menor volume não são classificados como menos rentáveis. Sem CMV e despesas completas, não calculo lucro. Componentes de combos não são interpretados como contagem de combos completos. Clientes são apresentados em grupos, sem nomes ou rankings individuais.
+Produtos de menor volume não são classificados como menos rentáveis. Sem CMV e despesas completas, não calculo lucro. Componentes de combos não são interpretados como contagem de combos completos. A demo e os relatórios públicos apresentam grupos de clientes. No privado autenticado, o cadastro opcional habilita rankings por nome, valor acumulado e recorrência, sem contatos ou documentos.
 
 ## Fontes utilizadas
 
@@ -121,11 +121,11 @@ Para abrir o privado sem reprocessar, use `-Mode Real` sem `-Refresh`. O padrão
 
 ## Atualização pelo dashboard
 
-Na VPS privada, na tela **Atualizar dados**, envie ZIPs ou arquivos oficiais com o histórico consolidado completo, informe a última data completa e confirme o envio. Todas as contas Google autorizadas podem importar. Um worker isolado processa a fila, executa SQL/dbt, auditoria e Machine Learning e publica uma nova geração somente após aprovação. Se uma etapa falhar, a base anterior permanece ativa. ZIPs são lidos sem extração indiscriminada. Visitantes da versão pública não têm importação, caminhos locais ou treinamento de modelos.
+Na VPS privada, na tela **Atualizar dados**, envie ZIP, RAR simples ou arquivos oficiais com o histórico consolidado completo, informe a última data completa e confirme o envio. Todas as contas Google autorizadas podem importar. Um worker isolado processa a fila, executa SQL/dbt, auditoria e Machine Learning e publica uma nova geração somente após aprovação. Se uma etapa falhar, a base anterior permanece ativa. Arquivos compactados são lidos sem extrair caminhos fornecidos pelo usuário. Visitantes da versão pública não têm importação, caminhos locais ou treinamento de modelos.
 
 A importação atual substitui o pacote consolidado validado; não faz merge automático de meses separados. Para atualizar setembro, é necessário enviar janeiro a setembro nos formatos documentados. As previsões anteriores ficam arquivadas para comparação com o realizado. O passo a passo e os limites estão em [docs/14_upload_privado.md](docs/14_upload_privado.md).
 
-O importador atual aceita os exports documentados no dicionário. Versões conflitantes de uma fonte geram erro. Não reutilizo silenciosamente métricas de uma importação anterior para completar uma fonte faltante. Meta Ads e a aba adicional iFood_App são opcionais; o conjunto principal de vendas, delivery e seis séries sociais é necessário nesta versão.
+O importador aceita os exports documentados no dicionário e nomes oficiais atualizados. Pedidos e histórico de itens do PDV são obrigatórios. Delivery, marketing e cadastro de clientes são opcionais; sua ausência não bloqueia as análises de vendas. Versões conflitantes de uma fonte geram erro. Fontes omitidas são sinalizadas como ausentes, sem reutilizar silenciosamente uma importação anterior. RAR exige leitor nativo e rejeita senha, múltiplos volumes, caminhos inseguros e links; formatos não suportados podem ser convertidos para ZIP.
 
 ## Qualidade e privacidade
 
